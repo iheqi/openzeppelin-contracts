@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (access/AccessControl.sol)
+// https://docs.openzeppelin.com/contracts/4.x/access-control
 
 pragma solidity ^0.8.0;
 
@@ -46,10 +47,12 @@ import "../utils/introspection/ERC165.sol";
  * grant and revoke this role. Extra precautions should be taken to secure
  * accounts that have been granted it.
  */
+
+// role-based access control, 基于RBAC的设计
 abstract contract AccessControl is Context, IAccessControl, ERC165 {
     struct RoleData {
         mapping(address => bool) members;
-        bytes32 adminRole;
+        bytes32 adminRole; // 角色的管理员角色，默认为DEFAULT_ADMIN_ROLE
     }
 
     mapping(bytes32 => RoleData) private _roles;
@@ -202,6 +205,9 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      * NOTE: This function is deprecated in favor of {_grantRole}.
      */
+
+    // 这个方法没有 onlyRole(admin) 检查，且是internal的
+    //有_grantRole了，这个方法没啥卵用了
     function _setupRole(bytes32 role, address account) internal virtual {
         _grantRole(role, account);
     }
@@ -211,6 +217,8 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      * Emits a {RoleAdminChanged} event.
      */
+
+    // 设置角色的管理员 
     function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual {
         bytes32 previousAdminRole = getRoleAdmin(role);
         _roles[role].adminRole = adminRole;
