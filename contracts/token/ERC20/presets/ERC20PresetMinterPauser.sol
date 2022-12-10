@@ -25,6 +25,14 @@ import "../../../utils/Context.sol";
  *
  * _Deprecated in favor of https://wizard.openzeppelin.com/[Contracts Wizard]._
  */
+
+// https://docs.openzeppelin.com/contracts/4.x/erc20
+// 预设的 ERC20合约 ERC20PresetMinterPauser。
+// 它被扩展为允许代币铸造、停止所有代币传输并允许持有者销毁他们的代币。
+// 合约使用AccessControlEnumerable来控制对铸造和暂停功能的访问。
+// 部署合约的账户将被授予 minter 和 pauser 角色，以及默认的 admin 角色。
+// 官网说这个已经没啥卵用了，确实花里胡哨
+
 contract ERC20PresetMinterPauser is Context, AccessControlEnumerable, ERC20Burnable, ERC20Pausable {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
