@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (token/ERC20/ERC20.sol)
+// https://docs.openzeppelin.com/contracts/4.x/erc20
 
 pragma solidity ^0.8.0;
 
@@ -84,6 +85,11 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * no way affects any of the arithmetic of the contract, including
      * {IERC20-balanceOf} and {IERC20-transfer}.
      */
+
+    // 了解decimals仅用于显示目的很重要。合约内部的所有运算仍然是对整数进行的，
+    // 在各种的用户界面（钱包、交易所等）必须根据 decimals 调整显示的值。
+    // 每个账户的总代币供应量和余额未在代币合约中指定：您需要除以10 ** decimals得到实际代币数量。 
+    // 意思就是如果不设置decimals，就无法表示小数代币比如0.5个
     function decimals() public view virtual override returns (uint8) {
         return 18;
     }
