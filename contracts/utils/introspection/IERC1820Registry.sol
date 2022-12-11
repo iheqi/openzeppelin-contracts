@@ -17,6 +17,10 @@ pragma solidity ^0.8.0;
  *
  * For an in-depth explanation and source code analysis, see the EIP text.
  */
+
+// https://learnblockchain.cn/docs/eips/eip-1820.html 
+// https://etherscan.io/address/0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24
+
 interface IERC1820Registry {
     event InterfaceImplementerSet(address indexed account, bytes32 indexed interfaceHash, address indexed implementer);
 
