@@ -26,6 +26,20 @@ import "../../utils/introspection/IERC1820Registry.sol";
  * are no special restrictions in the amount of tokens that created, moved, or
  * destroyed. This makes integration with ERC20 applications seamless.
  */
+
+// https://docs.openzeppelin.com/contracts/4.x/erc777
+// https://learnblockchain.cn/docs/eips/eip-777.html
+// ERC777 与ERC20的向后兼容，标准尝试改进大家常用的 ERC20 代币标准。 ERC777标准的主要优点有：
+
+// 1.使用和发送以太相同的理念发送token，方法为：send(dest, value, data).
+// 2.合约和普通地址都可以通过注册tokensToSend hook函数来控制和拒绝发送哪些token（拒绝发送通过在hook函数tokensToSend 里 revert 来实现）。
+// 3.合约和普通地址都可以通过注册tokensReceived hook函数来控制和拒绝接受哪些token（拒绝接受通过在hook函数tokensReceived 里 revert 来实现）。
+// 4.tokensReceived 可以通过hook函数可以做到在一个交易里完成发送代币和通知合约接受代币，而不像 ERC20 必须通过两次调用（approve/transferFrom）来完成。
+// 5.持有者可以"授权"和"撤销"操作员（operators: 可以代表持有者发送代币）。 这些操作员通常是（去中心化）交易所、支票处理机或自动支付系统。
+// 6.每个代币交易都包含 data 和 operatorData 字段， 可以分别传递来自持有者和操作员的数据。
+// 7.可以通过部署实现 tokensReceived 的代理合约来兼容没有实现tokensReceived 函数的地址。
+
+
 contract ERC777 is Context, IERC777, IERC20 {
     using Address for address;
 
@@ -48,6 +62,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     mapping(address => bool) private _defaultOperators;
 
     // For each account, a mapping of its operators and revoked default operators.
+    // operators: 可以代表持有者发送代币。这些操作员通常是（去中心化）交易所、支票处理机或自动支付系统
     mapping(address => mapping(address => bool)) private _operators;
     mapping(address => mapping(address => bool)) private _revokedDefaultOperators;
 
@@ -127,6 +142,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Also emits a {IERC20-Transfer} event for ERC20 compatibility.
      */
+    // 给地址 recipient 发送 amount 数量的代币 
     function send(
         address recipient,
         uint256 amount,
@@ -160,6 +176,9 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-isOperatorFor}.
      */
+
+    // 是否是某个持有者的操作员 
+    // 操作员是持有者 or 默认操作员且没有被撤销 or 在操作员列表里
     function isOperatorFor(address operator, address tokenHolder) public view virtual override returns (bool) {
         return
             operator == tokenHolder ||
@@ -170,6 +189,10 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-authorizeOperator}.
      */
+    // 设置一个第三方的 operator 地址作为msg.sender 的操作员，此操作员可以代表 msg.sender 发送和销毁代币。
+    // 如果operator在_defaultOperators中，则取消之前撤销过它的权限
+    // 如果是其他地址，则正常设置_operators映射
+
     function authorizeOperator(address operator) public virtual override {
         require(_msgSender() != operator, "ERC777: authorizing self as operator");
 
@@ -185,6 +208,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-revokeOperator}.
      */
+    // 撤销操作员权限 
     function revokeOperator(address operator) public virtual override {
         require(operator != _msgSender(), "ERC777: revoking self as operator");
 
@@ -209,8 +233,10 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Emits {Sent} and {IERC20-Transfer} events.
      */
+
+    // 操作员（msg.sender）代表 sender地址 给地址recipient发送 amount 数量的代币。
     function operatorSend(
-        address sender,
+        address sender, // holder，持有人
         address recipient,
         uint256 amount,
         bytes memory data,
@@ -360,6 +386,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      * @param operatorData bytes extra information provided by the operator (if any)
      * @param requireReceptionAck if true, contract recipients are required to implement ERC777TokensRecipient
      */
+    // _send 和 ERC20 _transfer相比，多了 _callTokensToSend、_callTokensReceived操作，来调用持有者和接收者合约定义好的钩子
     function _send(
         address from,
         address to,
@@ -413,6 +440,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         emit Transfer(from, address(0), amount);
     }
 
+    // 和 ERC20 的 _transfer 差不多
     function _move(
         address operator,
         address from,
@@ -460,6 +488,9 @@ contract ERC777 is Context, IERC777, IERC20 {
      * @param userData bytes extra information provided by the token holder (if any)
      * @param operatorData bytes extra information provided by the operator (if any)
      */
+
+    // 如果持有者有通过 ERC1820 注册 ERC777TokensSender 实现接口，代币合约必须调用其 tokensToSend 钩子函数 
+    // (只适用于合约地址，EOA不适用)
     function _callTokensToSend(
         address operator,
         address from,
@@ -485,6 +516,9 @@ contract ERC777 is Context, IERC777, IERC20 {
      * @param operatorData bytes extra information provided by the operator (if any)
      * @param requireReceptionAck if true, contract recipients are required to implement ERC777TokensRecipient
      */
+    // 如果接收者有通过 ERC1820 注册 ERC777TokensRecipient 实现接口，代币合约必须调用其 tokensReceived 钩子函数。
+    // 与 _callTokensToSend 相比多了一个 requireReceptionAck 参数，
+    // 表示如果 to 地址是一个合约地址，则必须要遵循ERC1820规范，实现implementer。否则将可能转账到黑洞地址。
     function _callTokensReceived(
         address operator,
         address from,
@@ -500,6 +534,10 @@ contract ERC777 is Context, IERC777, IERC20 {
         } else if (requireReceptionAck) {
             require(!to.isContract(), "ERC777: token recipient contract has no implementer for ERC777TokensRecipient");
         }
+        // 写得有点绕，是我就这样写
+        // else if (requireReceptionAck && to.isContract()) {
+        //     revert("ERC777: token recipient contract has no implementer for ERC777TokensRecipient");
+        // }
     }
 
     /**
