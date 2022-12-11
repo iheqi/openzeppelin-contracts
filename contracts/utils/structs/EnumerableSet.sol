@@ -38,6 +38,8 @@ pragma solidity ^0.8.0;
  * array of EnumerableSet.
  * ====
  */
+
+// 用Solidity实现的Set数据结构 
 library EnumerableSet {
     // To implement this library for multiple types with as little code
     // repetition as possible, we write it in terms of a generic Set type with

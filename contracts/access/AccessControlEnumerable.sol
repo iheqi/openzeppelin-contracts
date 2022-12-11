@@ -10,6 +10,12 @@ import "../utils/structs/EnumerableSet.sol";
 /**
  * @dev Extension of {AccessControl} that allows enumerating the members of each role.
  */
+
+// 扩展AccessControl.sol合约
+// 使用EnumerableSet数据结构的AddressSet作为RoleData
+// 这样可以用getRoleMember根据index获取member
+// getRoleMemberCount获取role对应的人数
+
 abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;
 
