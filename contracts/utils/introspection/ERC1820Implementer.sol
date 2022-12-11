@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC1820Implementer.sol)
+// https://learnblockchain.cn/docs/eips/eip-1820.html
+
 
 pragma solidity ^0.8.0;
 
@@ -21,6 +23,11 @@ contract ERC1820Implementer is IERC1820Implementer {
     /**
      * @dev See {IERC1820Implementer-canImplementInterfaceForAddress}.
      */
+
+    /// @notice 指示合约是否为地址 account 实现接口 interfaceHash
+    /// @param interfaceHash interfaceHash 接口名称的 keccak256 哈希值
+    /// @param account 为哪一个地址实现接口
+    /// @return ERC1820_ACCEPT_MAGIC 只有当合约为地址'addr'实现'interfaceHash'时返回 ERC1820_ACCEPT_MAGIC
     function canImplementInterfaceForAddress(bytes32 interfaceHash, address account)
         public
         view
@@ -38,6 +45,8 @@ contract ERC1820Implementer is IERC1820Implementer {
      * See {IERC1820Registry-setInterfaceImplementer} and
      * {IERC1820Registry-interfaceHash}.
      */
+
+    // 声明本合约为 account合约 实现了hash值为 interfaceHash 的接口
     function _registerInterfaceForAddress(bytes32 interfaceHash, address account) internal virtual {
         _supportedInterfaces[interfaceHash][account] = true;
     }
