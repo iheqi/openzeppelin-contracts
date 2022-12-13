@@ -24,6 +24,17 @@ import "../../../utils/cryptography/ECDSA.sol";
  *
  * _Available since v4.2._
  */
+
+/*
+ * ERC20的展，以支持投票和授权。
+ * 支持最多2^224^-1的令牌供应，而COMP限制为2^96^-1。
+ * 注意：如果需要兼容COMP，请使用本模块的｛ERC20VotesComp｝变体。
+ * 合约保留了每个账户投票权的历史记录（checkpoints）。投票权可以委托
+ * 通过直接调用｛delegate｝函数或通过提供签名来调用｛delegateBySig｝。投票权重
+ * 可以通过｛getVotes｝和｛getPastPortes｝来查询。
+ * 默认情况下，代币余额不考虑投票权。这使得转账更便宜。缺点是它
+ * 要求用户授权给自己，以便激活 checkpoints 并跟踪他们的投票权。
+ */
 abstract contract ERC20Votes is IVotes, ERC20Permit {
     struct Checkpoint {
         uint32 fromBlock;

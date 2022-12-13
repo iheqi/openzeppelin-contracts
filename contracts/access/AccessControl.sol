@@ -207,7 +207,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      */
 
     // 这个方法没有 onlyRole(admin) 检查，且是internal的
-    //有_grantRole了，这个方法没啥卵用了
+    // 有_grantRole了，这个方法没啥卵用了
     function _setupRole(bytes32 role, address account) internal virtual {
         _grantRole(role, account);
     }
