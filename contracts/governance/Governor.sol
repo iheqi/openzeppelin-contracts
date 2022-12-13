@@ -26,6 +26,13 @@ import "./IGovernor.sol";
  *
  * _Available since v4.3._
  */
+
+// https://docs.openzeppelin.com/contracts/4.x/governance
+// 合约参照了 compound-protocol/contracts/Governance/GovernorAlpha.sol
+// Compound 设计的 GovernorAlpha 和 GovernorBravo 合约非常成功和流行，缺点是具有不同需求的项目不得不分叉代码以根据他们的需要进行定制，这可能会带来引入安全问题。
+// 对于 OpenZeppelin Contracts，我们着手构建 Governor 合约的模块化系统，这样就不需要分叉，并且可以通过使用 Solidity 继承编写小模块来适应不同的需求。
+
+// 这个合约没有时间锁，如果要看时间锁的版本，去看 OpenZeppelin 的 TimelockController 和 GovernorTimelockControl 合约。
 abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receiver, IERC1155Receiver {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
     using SafeCast for uint256;
@@ -130,6 +137,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      * across multiple networks. This also means that in order to execute the same operation twice (on the same
      * governor) the proposer will have to change the description in order to avoid proposal id conflicts.
      */
+    
+    // Proposal hash, 作为标识Id
     function hashProposal(
         address[] memory targets,
         uint256[] memory values,
@@ -221,6 +230,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      *
      * Note: Support is generic and can represent various things depending on the voting system used.
      */
+    // 真正的投票计数逻辑，由系统自行实现
+    // (妈的，怎么叫countXXX)
     function _countVote(
         uint256 proposalId,
         address account,
@@ -242,6 +253,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     /**
      * @dev See {IGovernor-propose}.
      */
+
+    // 提案函数，接收了一个动作列表
     function propose(
         address[] memory targets,
         uint256[] memory values,
@@ -369,6 +382,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      *
      * Emits a {IGovernor-ProposalCanceled} event.
      */
+
+    // 取消提案，通过的提案也仍然可以被取消
     function _cancel(
         address[] memory targets,
         uint256[] memory values,
@@ -410,6 +425,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     /**
      * @dev See {IGovernor-castVote}.
      */
+    // 投票函数
     function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
         address voter = _msgSender();
         return _castVote(proposalId, voter, support, "");
@@ -499,8 +515,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      */
     function _castVote(
         uint256 proposalId,
-        address account,
-        uint8 support,
+        address account,    // voter
+        uint8 support,      // 是否支持
         string memory reason
     ) internal virtual returns (uint256) {
         return _castVote(proposalId, account, support, reason, _defaultParams());
