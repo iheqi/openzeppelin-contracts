@@ -25,6 +25,8 @@ import "../utils/Context.sol";
  * tokens that apply fees during transfers, are likely to not be supported as expected. If in doubt, we encourage you
  * to run tests before sending real value to this contract.
  */
+// 之前学过：Mastering Ethereum/WTFSolidity/42.PaymentSplit.sol
+
 contract PaymentSplitter is Context {
     event PayeeAdded(address account, uint256 shares);
     event PaymentReleased(address to, uint256 amount);
@@ -34,9 +36,9 @@ contract PaymentSplitter is Context {
     uint256 private _totalShares;
     uint256 private _totalReleased;
 
-    mapping(address => uint256) private _shares;
+    mapping(address => uint256) private _shares; // 每人的份额shares
     mapping(address => uint256) private _released;
-    address[] private _payees;
+    address[] private _payees; // 分账受益人
 
     mapping(IERC20 => uint256) private _erc20TotalReleased;
     mapping(IERC20 => mapping(address => uint256)) private _erc20Released;
@@ -188,6 +190,9 @@ contract PaymentSplitter is Context {
      * @dev internal logic for computing the pending payment of an `account` given the token historical balances and
      * already released amounts.
      */
+    // 根据受益人地址`account`, 分账合约总收入`totalReceived`和该地址已领取的钱`released[account]`，计算该受益人现在可分的`ETH`。
+    // (shares[account] / totalShares) 就是计算payee的比例，那一开始就存百分比不好吗
+    // 原来这里有个坑，(shares[account] / totalShares)是无符号整数相除，结果为零，不能这样计算百分比。     
     function _pendingPayment(
         address account,
         uint256 totalReceived,

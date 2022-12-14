@@ -13,6 +13,9 @@ pragma solidity ^0.8.0;
  * NOTE: `SafeMath` is generally not needed starting with Solidity 0.8, since the compiler
  * now has built in overflow checking.
  */
+
+// Solidity 0.8版本后内置了Safemath库
+// 可以简单的了解一下它的原理
 library SafeMath {
     /**
      * @dev Returns the addition of two unsigned integers, with an overflow flag.
