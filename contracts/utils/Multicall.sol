@@ -10,6 +10,9 @@ import "./Address.sol";
  *
  * _Available since v4.1._
  */
+
+// Multicall，跟手动自己在一个函数中调用多个其他函数没差别
+
 abstract contract Multicall {
     /**
      * @dev Receives and executes a batch of function calls on this contract.
