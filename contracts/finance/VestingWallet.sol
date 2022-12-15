@@ -16,6 +16,11 @@ import "../utils/Context.sol";
  * Consequently, if the vesting has already started, any amount of tokens sent to this contract will (at least partly)
  * be immediately releasable.
  */
+
+// 就是先将代币转到 VestingWallet VestingWallet 合约不能一次性提出，按时间计算可提出的量
+// 让合约受益人去提
+// Mastering Ethereum/WTFSolidity/43.TokenVesting.sol
+
 contract VestingWallet is Context {
     event EtherReleased(uint256 amount);
     event ERC20Released(address indexed token, uint256 amount);
@@ -83,6 +88,7 @@ contract VestingWallet is Context {
     /**
      * @dev Getter for the amount of releasable eth.
      */
+    // 可认领的数量，等于 已归属的数量 - 已释放的数量
     function releasable() public view virtual returns (uint256) {
         return vestedAmount(uint64(block.timestamp)) - released();
     }
@@ -137,6 +143,9 @@ contract VestingWallet is Context {
      * @dev Virtual implementation of the vesting formula. This returns the amount vested, as a function of time, for
      * an asset given its total historical allocation.
      */
+
+    // 根据线性释放公式，计算已归属的数量
+    // totalAllocation: 合约里总共收到了多少代币（当前余额 + 已经提取）
     function _vestingSchedule(uint256 totalAllocation, uint64 timestamp) internal view virtual returns (uint256) {
         if (timestamp < start()) {
             return 0;
