@@ -17,12 +17,13 @@ import "../utils/cryptography/EIP712.sol";
 contract MinimalForwarder is EIP712 {
     using ECDSA for bytes32;
 
+    // ForwardRequest 结构体定义了一个交易中用于签名的基本组成成分
     struct ForwardRequest {
         address from;
         address to;
         uint256 value;
         uint256 gas;
-        uint256 nonce;
+        uint256 nonce; // 为了避免双花攻击，在智能合约中维护 nonce 是必要的
         bytes data;
     }
 

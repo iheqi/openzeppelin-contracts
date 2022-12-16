@@ -14,6 +14,7 @@ abstract contract GovernorCountingSimple is Governor {
     /**
      * @dev Supported vote types. Matches Governor Bravo ordering.
      */
+    // 3 个投票选项：反对、赞成和弃权 
     enum VoteType {
         Against,
         For,
