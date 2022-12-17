@@ -13,6 +13,10 @@ import "../../utils/Address.sol";
  *
  * An owner is able to change the implementation the beacon points to, thus upgrading the proxies that use this beacon.
  */
+
+// BeaconProxy: 代理合约
+// UpgradeableBeacon: 信标合约，就是做个中间人进行解耦而已
+
 contract UpgradeableBeacon is IBeacon, Ownable {
     address private _implementation;
 
