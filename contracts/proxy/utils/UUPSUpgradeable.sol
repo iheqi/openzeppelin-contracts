@@ -18,6 +18,13 @@ import "../ERC1967/ERC1967Upgrade.sol";
  *
  * _Available since v4.1._
  */
+
+// Transparent vs UUPS, open-zepplin 更推荐 UUPS
+// https://eips.ethereum.org/EIPS/eip-1822
+// https://docs.openzeppelin.com/contracts/4.x/api/proxy#UUPSUpgradeable
+// 通用可升级代理规范（UUPS，universal upgradeable proxy standard）
+// 就把升级函数也搬到逻辑合约里（这里的实现又让我搞不懂了，看 WTFSolidity/49.UUPS.sol 还比较好理解）
+
 abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
     address private immutable __self = address(this);
