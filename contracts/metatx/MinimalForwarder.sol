@@ -14,6 +14,11 @@ import "../utils/cryptography/EIP712.sol";
  * functioning forwarding system with good properties requires more complexity. We suggest you look at other projects
  * such as the GSN which do have the goal of building a system like that.
  */
+
+// https://www.jb51.net/blockchain/802363.html
+// https://blog.csdn.net/shengzang1998/article/details/121263348
+// 元交易（Metatransaction），是一种让用户不需要支付 gas 费就能够使用 DApp、发起交易、调用智能合约的手段。
+// 需要使用元交易智能合约实现
 contract MinimalForwarder is EIP712 {
     using ECDSA for bytes32;
 
@@ -45,6 +50,11 @@ contract MinimalForwarder is EIP712 {
         return _nonces[req.from] == req.nonce && signer == req.from;
     }
 
+    // 执行元交易
+    // 调用示例：
+    // 如果 Alice 没有足够的 ETH 支付 gas 费，来铸造一个 NFT，她可以签署一个元交易，元交易的 data 是由 abi.encodeWithSignature(functionSelector, parmas...) 得到的，
+    // 将该元交易递交给具有足够 ETH 的 Bob，Bob 调用元交易合约 MinimalForwarder.execute(req, signature)，从而让 Alice 的元交易成功执行。
+    // (整体流程就是别人帮你发起交易教一下手续费，然后msg.sender还是设置为你)
     function execute(ForwardRequest calldata req, bytes calldata signature)
         public
         payable
@@ -53,12 +63,16 @@ contract MinimalForwarder is EIP712 {
         require(verify(req, signature), "MinimalForwarder: signature does not match request");
         _nonces[req.from] = req.nonce + 1;
 
+
+        // req.to 为 ERC2771Context.sol 地址
         (bool success, bytes memory returndata) = req.to.call{gas: req.gas, value: req.value}(
             abi.encodePacked(req.data, req.from)
         );
 
         // Validate that the relayer has sent enough gas for the call.
         // See https://ronan.eth.limo/blog/ethereum-gas-dangers/
+
+        // 为避免中间人（代为执行元交易的人）恶意地或无意地使用足够低的 gas 使得交易执行成功，而元交易执行失败
         if (gasleft() <= req.gas / 63) {
             // We explicitly trigger invalid opcode to consume all gas and bubble-up the effects, since
             // neither revert or assert consume all gas since Solidity 0.8.0

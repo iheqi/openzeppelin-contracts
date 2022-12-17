@@ -50,6 +50,7 @@ abstract contract EIP712 {
      * NOTE: These parameters cannot be changed except through a xref:learn::upgrading-smart-contracts.adoc[smart
      * contract upgrade].
      */
+    // name 是合约名称，version 是合约版本，这将作为 EIP712 签名验证的一部分 
     constructor(string memory name, string memory version) {
         bytes32 hashedName = keccak256(bytes(name));
         bytes32 hashedVersion = keccak256(bytes(version));
@@ -58,6 +59,9 @@ abstract contract EIP712 {
         );
         _HASHED_NAME = hashedName;
         _HASHED_VERSION = hashedVersion;
+
+        // 它在部署时，将自动获取合约的地址、chainId 等信息。
+        // 意味着，即便有相同的 ForwardRequest 结构体数据，但合约地址或区块链网络不同，也会导致签名无效。
         _CACHED_CHAIN_ID = block.chainid;
         _CACHED_DOMAIN_SEPARATOR = _buildDomainSeparator(typeHash, hashedName, hashedVersion);
         _CACHED_THIS = address(this);
