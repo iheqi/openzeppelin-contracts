@@ -10,6 +10,10 @@ import "../../access/Ownable.sol";
  * @dev This is an auxiliary contract meant to be assigned as the admin of a {TransparentUpgradeableProxy}. For an
  * explanation of why you would want to use this see the documentation for {TransparentUpgradeableProxy}.
  */
+
+// 这是一个辅助合约，被设置为 TransparentUpgradeableProxy 合约的admin
+// (多搞一个合约这么费劲干嘛？便于扩展？)
+
 contract ProxyAdmin is Ownable {
     /**
      * @dev Returns the current implementation of `proxy`.

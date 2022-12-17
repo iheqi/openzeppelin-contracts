@@ -26,6 +26,12 @@ import "../ERC1967/ERC1967Proxy.sol";
  * Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way,
  * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
  */
+
+// WTFSolidity/48.TransparentProxy.sol
+// 透明可升级合约，解决 逻辑合约 和 代理合约的函数可能有相同选择器的问题
+// 透明代理的逻辑非常简单：管理员可能会因为“函数选择器冲突”，在调用逻辑合约的函数时，误调用代理合约的可升级函数。
+// 那么限制管理员的权限，不让他调用任何逻辑合约的函数，就能解决冲突（也就是代理合约的函数只能管理员调用，逻辑合约的函数只能用户调用）
+
 contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
