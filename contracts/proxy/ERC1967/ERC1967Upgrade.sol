@@ -16,6 +16,12 @@ import "../../utils/StorageSlot.sol";
  *
  * @custom:oz-upgrades-unsafe-allow delegatecall
  */
+
+// https://eips.ethereum.org/EIPS/eip-1967
+// Proxy Storage Slots: 代理存储插槽规范，代理合约永远不应该向用户提供可能与逻辑合约的功能发生冲突的变量或方法
+// 避免插槽冲突或被意外修改。
+// (但也依赖于定义的插槽不会被其他变量如数组等访问到，否则会有其他口子来修改)
+
 abstract contract ERC1967Upgrade {
     // This is the keccak-256 hash of "eip1967.proxy.rollback" subtracted by 1
     bytes32 private constant _ROLLBACK_SLOT = 0x4910fdfa16fed3260ed0e7147f7cc6da11a60208b5b9406d12a635614ffd9143;
@@ -25,6 +31,8 @@ abstract contract ERC1967Upgrade {
      * This is the keccak-256 hash of "eip1967.proxy.implementation" subtracted by 1, and is
      * validated in the constructor.
      */
+    // 逻辑合约地址插槽
+    // 由 bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1) 计算得出
     bytes32 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
     /**
@@ -35,6 +43,7 @@ abstract contract ERC1967Upgrade {
     /**
      * @dev Returns the current implementation address.
      */
+    // 获取逻辑合约地址
     function _getImplementation() internal view returns (address) {
         return StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value;
     }
@@ -42,6 +51,7 @@ abstract contract ERC1967Upgrade {
     /**
      * @dev Stores a new address in the EIP1967 implementation slot.
      */
+    // 设置逻辑合约地址 
     function _setImplementation(address newImplementation) private {
         require(Address.isContract(newImplementation), "ERC1967: new implementation is not a contract");
         StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
@@ -62,6 +72,7 @@ abstract contract ERC1967Upgrade {
      *
      * Emits an {Upgraded} event.
      */
+    // 设置逻辑合约地址并向逻辑合约发起交易
     function _upgradeToAndCall(
         address newImplementation,
         bytes memory data,
@@ -78,6 +89,7 @@ abstract contract ERC1967Upgrade {
      *
      * Emits an {Upgraded} event.
      */
+    // 没明白 _ROLLBACK_SLOT 是干嘛用的
     function _upgradeToAndCallUUPS(
         address newImplementation,
         bytes memory data,
@@ -103,6 +115,7 @@ abstract contract ERC1967Upgrade {
      * This is the keccak-256 hash of "eip1967.proxy.admin" subtracted by 1, and is
      * validated in the constructor.
      */
+    // 管理员地址插槽
     bytes32 internal constant _ADMIN_SLOT = 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103;
 
     /**
@@ -139,6 +152,8 @@ abstract contract ERC1967Upgrade {
      * @dev The storage slot of the UpgradeableBeacon contract which defines the implementation for this proxy.
      * This is bytes32(uint256(keccak256('eip1967.proxy.beacon')) - 1)) and is validated in the constructor.
      */
+    // 信标合约地址插槽
+    // 由 bytes32(uint256(keccak256('eip1967.proxy.beacon')) - 1) 计算得出
     bytes32 internal constant _BEACON_SLOT = 0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50;
 
     /**

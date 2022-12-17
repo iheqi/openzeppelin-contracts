@@ -12,7 +12,7 @@ import "../utils/Context.sol";
 // 要支持元交易，仅实现元交易智能合约(MinimalForwarder)是不够的，因为目标合约无法知道实际的元交易 from 是谁。
 // 如果没有额外的措施，它将只能够从 msg.sender 中获取，由于在元交易合约实现中，是通过 Address.call 调用的，
 // 因此将得到的发送者是元交易合约 MinimalForwarder 的地址。
-// ERC2771 元交易的安全协议则解决了该问题，获取 MinimalForwarder 传递过来的 req.from 作为 msg.sender
+// ERC2771(元交易的安全规范) 则解决了该问题，获取 MinimalForwarder 传递过来的 req.from 作为 msg.sender
 
 abstract contract ERC2771Context is Context {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable

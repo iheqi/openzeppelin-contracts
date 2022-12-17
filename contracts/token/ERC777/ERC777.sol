@@ -38,7 +38,7 @@ import "../../utils/introspection/IERC1820Registry.sol";
 // 5.持有者可以"授权"和"撤销"操作员（operators: 可以代表持有者发送代币）。 这些操作员通常是（去中心化）交易所、支票处理机或自动支付系统。
 // 6.每个代币交易都包含 data 和 operatorData 字段， 可以分别传递来自持有者和操作员的数据。
 // 7.可以通过部署实现 tokensReceived 的代理合约来兼容没有实现tokensReceived 函数的地址。
-
+// (就是配合1820规范解决ERC20转入黑洞地址的问题)
 
 contract ERC777 is Context, IERC777, IERC20 {
     using Address for address;

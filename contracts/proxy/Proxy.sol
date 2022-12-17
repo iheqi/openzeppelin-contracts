@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.6.0) (proxy/Proxy.sol)
 
+// https://docs.openzeppelin.com/contracts/4.x/api/proxy
+// code/Mastering Ethereum/WTFSolidity/46.Proxy.sol
 pragma solidity ^0.8.0;
 
 /**
