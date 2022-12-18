@@ -16,6 +16,8 @@ import "../../utils/introspection/ERC165.sol";
  * the Metadata extension, but not including the Enumerable extension, which is available separately as
  * {ERC721Enumerable}.
  */
+
+// code/Mastering Ethereum/WTFSolidity/34. ERC721/ERC721.sol
 contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     using Address for address;
     using Strings for uint256;

@@ -20,6 +20,8 @@ import "../../../utils/introspection/ERC165.sol";
  *
  * _Available since v4.5._
  */
+ 
+// 对于 ERC721，ERC721Royalty 考虑了在 burn 时顺便清除了该 tokenId 的版税信息。 
 abstract contract ERC721Royalty is ERC2981, ERC721 {
     /**
      * @dev See {IERC165-supportsInterface}.
