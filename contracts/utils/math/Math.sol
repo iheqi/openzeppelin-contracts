@@ -6,6 +6,16 @@ pragma solidity ^0.8.0;
 /**
  * @dev Standard math utilities missing in the Solidity language.
  */
+// Solidity 语言中缺少标准数学的函数。
+// 我去数学不好，看不懂
+
+// contracts/utils/math 下的模块总结：
+// ├── Math.sol             无符号数的数学运算api
+// ├── SignedMath.sol       有符号数的数学运算api
+// ├── SafeCast.sol         安全的无符号和有符号类型转换
+// ├── SafeMath.sol         安全的无符号运行, 0.8后内置了
+// └── SignedSafeMath.sol   安全的有符号运行, 0.8后内置了
+
 library Math {
     enum Rounding {
         Down, // Toward negative infinity

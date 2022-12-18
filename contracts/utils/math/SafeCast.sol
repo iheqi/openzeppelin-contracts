@@ -19,6 +19,12 @@ pragma solidity ^0.8.0;
  * Can be combined with {SafeMath} and {SignedSafeMath} to extend it to smaller types, by performing
  * all math on `uint256` and `int256` and then downcasting.
  */
+
+// 文档: 类型转换：https://learnblockchain.cn/docs/solidity/types.html#types-conversion-elementary-types
+// 对 Solidity 的 uintXX、intXX 转换运算符的包装，就是在原基础上添加了溢出检查
+// 对于无符号数向下转换，会先检查该数是否大于向下转换的最大数
+// 对于有符号数向下转换，检查转换完后是否和原来的数相等 (无符号数也可以这样判断)
+
 library SafeCast {
     /**
      * @dev Returns the downcasted uint248 from uint256, reverting on

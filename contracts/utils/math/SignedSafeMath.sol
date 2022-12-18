@@ -9,6 +9,9 @@ pragma solidity ^0.8.0;
  * NOTE: `SignedSafeMath` is no longer needed starting with Solidity 0.8. The compiler
  * now has built in overflow checking.
  */
+
+// 安全的有符号数运算，从 Solidity 0.8 开始不再需要。编译器现在内置了溢出检查。
+
 library SignedSafeMath {
     /**
      * @dev Returns the multiplication of two signed integers, reverting on
