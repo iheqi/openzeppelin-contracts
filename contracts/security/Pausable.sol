@@ -14,6 +14,8 @@ import "../utils/Context.sol";
  * the functions of your contract. Note that they will not be pausable by
  * simply including this module, only once the modifiers are put in place.
  */
+
+// 就是设置一个 _paused 标志位，给加上修饰符的函数可以暂停
 abstract contract Pausable is Context {
     /**
      * @dev Emitted when the pause is triggered by `account`.

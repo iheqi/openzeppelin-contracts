@@ -19,6 +19,11 @@ pragma solidity ^0.8.0;
  * to protect against it, check out our blog post
  * https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].
  */
+
+// 防止重入，使用标志位的方式
+// 要注意的是避免在一个加了 nonReentrant修饰符的函数内部再调用另一个 nonReentrant修饰的函数
+// 可以将nonReentrant的函数都设置为 external，避免合约内部调用
+
 abstract contract ReentrancyGuard {
     // Booleans are more expensive than uint256 or any type that takes up a full
     // word because each write operation emits an extra SLOAD to first read the

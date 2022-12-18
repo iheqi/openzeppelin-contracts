@@ -20,6 +20,7 @@ pragma solidity ^0.8.0;
 // https://eips.ethereum.org/EIPS/eip-1167
 // EIP 1167是部署最小代理合约的标准，也称为“克隆”。
 // 目的是为了以不可变的方式简单且廉价地克隆合约功能，该标准指定了一个最小字节码的实现，将所有调用委托给一个已知的固定地址。
+// 看 https://ethernaut.openzeppelin.com/level/0xFe18db6501719Ab506683656AAf2F80243F8D0c0 会更深刻
 
 library Clones {
     /**
