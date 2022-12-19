@@ -11,6 +11,11 @@ import "../Strings.sol";
  * These functions can be used to verify that a message was signed by the holder
  * of the private keys of a given address.
  */
+
+// 使用例子： Mastering Ethereum/WTFSolidity/37.Signature.sol 
+// web3.js签名：https://web3js.readthedocs.io/en/v1.3.4/web3-eth-accounts.html#sign
+// ether.js签名：https://docs.ethers.org/v5/api/signer/#Signer-signMessage
+
 library ECDSA {
     enum RecoverError {
         NoError,
@@ -52,6 +57,8 @@ library ECDSA {
      *
      * _Available since v4.3._
      */
+
+    // tryRecover系列 最后都调用 tryRecover(hash, v, r, s)，里面最终调用 Solidity 的 ecrecover
     function tryRecover(bytes32 hash, bytes memory signature) internal pure returns (address, RecoverError) {
         if (signature.length == 65) {
             bytes32 r;
@@ -85,6 +92,8 @@ library ECDSA {
      * this is by receiving a hash of the original message (which may otherwise
      * be too long), and then calling {toEthSignedMessageHash} on it.
      */
+
+    // 最终调用 Solidity 的 ecrecover，搞这么多个差不多的方法干嘛呢
     function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
         (address recovered, RecoverError error) = tryRecover(hash, signature);
         _throwError(error);
@@ -180,6 +189,10 @@ library ECDSA {
      *
      * See {recover}.
      */
+
+    // https://eips.ethereum.org/EIPS/eip-191 
+    // 返回一个以太坊签名hash，根据 eip-191 规范对 原hash 加个前缀再hash一遍
+
     function toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32) {
         // 32 is the length in bytes of hash,
         // enforced by the type signature above
@@ -194,6 +207,9 @@ library ECDSA {
      *
      * See {recover}.
      */
+
+    // 将 keccak256(s) 作为 hash 传入到上面的函数，和下面这个函数传入 s 的结果不一样吧
+    // 这两个函数要用对？
     function toEthSignedMessageHash(bytes memory s) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n", Strings.toString(s.length), s));
     }
@@ -207,6 +223,8 @@ library ECDSA {
      *
      * See {recover}.
      */
+    
+    // 结构化数据的hash 
     function toTypedDataHash(bytes32 domainSeparator, bytes32 structHash) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
     }
