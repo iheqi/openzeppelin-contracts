@@ -12,6 +12,9 @@ import "./IERC165.sol";
  * `revert` if an interface is not supported. It is up to the caller to decide
  * what to do in these cases.
  */
+
+// ERC165Checker 顾名思义用来查询合约是否支持 遵循ERC165规范的接口
+
 library ERC165Checker {
     // As per the EIP-165 spec, no interface should ever match 0xffffffff
     bytes4 private constant _INTERFACE_ID_INVALID = 0xffffffff;
@@ -19,6 +22,9 @@ library ERC165Checker {
     /**
      * @dev Returns true if `account` supports the {IERC165} interface.
      */
+
+    // 如果 account 支持IERC165接口，则返回 true
+
     function supportsERC165(address account) internal view returns (bool) {
         // Any contract that implements ERC165 must explicitly indicate support of
         // InterfaceId_ERC165 and explicitly indicate non-support of InterfaceId_Invalid
@@ -104,6 +110,8 @@ library ERC165Checker {
      * with {supportsERC165}.
      * Interface identification is specified in ERC-165.
      */
+
+    // 这他妈是啥玩意？检查合约是否支持某个 interfaceId？怎么检查的？
     function supportsERC165InterfaceUnchecked(address account, bytes4 interfaceId) internal view returns (bool) {
         // prepare call
         bytes memory encodedParams = abi.encodeWithSelector(IERC165.supportsInterface.selector, interfaceId);
@@ -112,6 +120,9 @@ library ERC165Checker {
         bool success;
         uint256 returnSize;
         uint256 returnValue;
+
+        // 在合约地址上使用附加数据（input data）0x01ffc9a701ffc9a700000000000000000000000000000000000000000000000000000000 和 gas 30,000 进行STATICCALL调用
+        // 相当于contract.supportsInterface(0x01ffc9a7)
         assembly {
             success := staticcall(30000, account, add(encodedParams, 0x20), mload(encodedParams), 0x00, 0x20)
             returnSize := returndatasize()

@@ -11,6 +11,8 @@ import "./ERC165.sol";
  * Contracts may inherit from this and call {_registerInterface} to declare
  * their support of an interface.
  */
+
+// 与 ERC165.sol 相比扩展可以调用 _registerInterface 存储其他 interfaceId，以声明合约对该 interfaceId 的支持。
 abstract contract ERC165Storage is ERC165 {
     /**
      * @dev Mapping of interface ids to whether or not it's supported.

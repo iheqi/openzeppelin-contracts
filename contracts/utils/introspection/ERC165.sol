@@ -19,6 +19,11 @@ import "./IERC165.sol";
  *
  * Alternatively, {ERC165Storage} provides an easier to use but more expensive implementation.
  */
+
+// https://learnblockchain.cn/docs/eips/eip-165.html
+// https://learnblockchain.cn/docs/solidity/units-and-global-variables.html?highlight=interfaceid
+
+// 接口ID 定义为接口中所有函数选择器的异或（XOR）
 abstract contract ERC165 is IERC165 {
     /**
      * @dev See {IERC165-supportsInterface}.
