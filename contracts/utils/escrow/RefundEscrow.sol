@@ -15,6 +15,9 @@ import "./ConditionalEscrow.sol";
  * withdrawal by the beneficiary, or refunds to the depositors. All interactions
  * with `RefundEscrow` will be made through the owner contract.
  */
+
+// 可以存款、关闭存款期限，并允许受益人提款或退款给存款人。 
+
 contract RefundEscrow is ConditionalEscrow {
     using Address for address payable;
 
@@ -67,6 +70,8 @@ contract RefundEscrow is ConditionalEscrow {
      * @dev Allows for the beneficiary to withdraw their funds, rejecting
      * further deposits.
      */
+
+    // 允许受益人提取资金，拒绝进一步存款。  
     function close() public virtual onlyOwner {
         require(state() == State.Active, "RefundEscrow: can only close while active");
         _state = State.Closed;
@@ -76,6 +81,7 @@ contract RefundEscrow is ConditionalEscrow {
     /**
      * @dev Allows for refunds to take place, rejecting further deposits.
      */
+    // 允许退款，拒绝进一步存款。 
     function enableRefunds() public virtual onlyOwner {
         require(state() == State.Active, "RefundEscrow: can only enable refunds while active");
         _state = State.Refunding;
@@ -85,6 +91,8 @@ contract RefundEscrow is ConditionalEscrow {
     /**
      * @dev Withdraws the beneficiary's funds.
      */
+
+    // 提取受益人的资金。 
     function beneficiaryWithdraw() public virtual {
         require(state() == State.Closed, "RefundEscrow: beneficiary can only withdraw while closed");
         beneficiary().sendValue(address(this).balance);

@@ -10,6 +10,8 @@ import "./Escrow.sol";
  * @dev Base abstract escrow to only allow withdrawal if a condition is met.
  * @dev Intended usage: See {Escrow}. Same usage guidelines apply here.
  */
+
+// 与 Escrow 就相当于加了个 withdrawalAllowed 钩子
 abstract contract ConditionalEscrow is Escrow {
     /**
      * @dev Returns whether an address is allowed to withdraw their funds. To be
