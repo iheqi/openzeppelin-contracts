@@ -23,11 +23,17 @@ import "../utils/escrow/Escrow.sol";
  * instead of Solidity's `transfer` function. Payees can query their due
  * payments with {payments}, and retrieve them with {withdrawPayments}.
  */
+
+// https://docs.openzeppelin.com/contracts/4.x/api/security#PullPayment
+// 拉式支付策略的简单实施 ，其中支付合约不直接与接收账户交互，接收账户必须自行提取支付。
+// 在安全方面发送以太币时，拉式支付通常被认为是最佳实践。它可以防止接收者阻止执行，并消除重入问题。
+
+// (没明白啊，本合约到底是谁部署？谁调用？如果是发送人，那不应该叫push吗)
 abstract contract PullPayment {
     Escrow private immutable _escrow;
 
     constructor() {
-        _escrow = new Escrow();
+        _escrow = new Escrow(); // 创建 Escrow 合约，Escrow 的 owner 为本合约
     }
 
     /**

@@ -19,12 +19,16 @@ import "../Address.sol";
  * payment method should be its owner, and provide public methods redirecting
  * to the escrow's deposit and withdraw.
  */
+
+// 基础托管合同，持有指定给收款人的资金，直到他们取款。 
+// 但是 onlyOwner 才能 deposit 和 withdraw，那这个是谁去部署？发送人？
 contract Escrow is Ownable {
     using Address for address payable;
 
     event Deposited(address indexed payee, uint256 weiAmount);
     event Withdrawn(address indexed payee, uint256 weiAmount);
 
+    // payee 可提取金额
     mapping(address => uint256) private _deposits;
 
     function depositsOf(address payee) public view returns (uint256) {
@@ -37,6 +41,8 @@ contract Escrow is Ownable {
      *
      * Emits a {Deposited} event.
      */
+
+    // 发送ETH存储到合约并记录，供 payee 提取
     function deposit(address payee) public payable virtual onlyOwner {
         uint256 amount = msg.value;
         _deposits[payee] += amount;
@@ -55,11 +61,13 @@ contract Escrow is Ownable {
      *
      * Emits a {Withdrawn} event.
      */
+    // 提取 payee 的累积余额
     function withdraw(address payable payee) public virtual onlyOwner {
         uint256 payment = _deposits[payee];
 
         _deposits[payee] = 0;
 
+        // sendValue 来自 Address.sol
         payee.sendValue(payment);
 
         emit Withdrawn(payee, payment);

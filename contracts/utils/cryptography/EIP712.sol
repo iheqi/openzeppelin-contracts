@@ -24,6 +24,10 @@ import "./ECDSA.sol";
  *
  * _Available since v3.4._
  */
+
+// EIP-712：结构化数据哈希和签名
+// 定义一种对类型化、结构化数据进行散列和签名的过程，而不仅仅是字节串。
+
 abstract contract EIP712 {
     /* solhint-disable var-name-mixedcase */
     // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
