@@ -17,6 +17,9 @@ pragma solidity ^0.8.0;
  * OpenZeppelin's JavaScript library generates merkle trees that are safe
  * against this attack out of the box.
  */
+
+// Mastering Ethereum/WTFSolidity/36.MerkleTree.sol
+
 library MerkleProof {
     /**
      * @dev Returns true if a `leaf` can be proved to be a part of a Merkle tree
@@ -24,6 +27,10 @@ library MerkleProof {
      * sibling hashes on the branch from the leaf to the root of the tree. Each
      * pair of leaves and each pair of pre-images are assumed to be sorted.
      */
+
+    // 当通过`proof`和`leaf`重建出的`root`与给定的`root`相等时，返回`true`，数据有效。
+    // 在重建时，叶子节点对和元素对都是排序过的。 
+
     function verify(
         bytes32[] memory proof,
         bytes32 root,
@@ -53,6 +60,9 @@ library MerkleProof {
      *
      * _Available since v4.4._
      */
+
+    // 根据 proof 层层向上计算出 root
+    // proof要按顺序严格排列的
     function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
@@ -66,6 +76,8 @@ library MerkleProof {
      *
      * _Available since v4.7._
      */
+
+    // calldata类型的proof，与上面的相比更省gas费？
     function processProofCalldata(bytes32[] calldata proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
@@ -82,6 +94,10 @@ library MerkleProof {
      *
      * _Available since v4.7._
      */
+
+    // 先了解什么是 Merktree 多值证明：https://www.jinse.com/blockchain/603132.html
+    // Merkle Pollard: https://ishare.ifeng.com/c/s/7lhcfTfipUd
+    // proofFlags是什么没明白，本想生成一个树看一下 ethers/17.MerkleMultiProof.js，搞不明白
     function multiProofVerify(
         bytes32[] memory proof,
         bool[] memory proofFlags,
@@ -212,10 +228,12 @@ library MerkleProof {
         }
     }
 
+    // 在生成 MarkleTree 时两两地址就有顺序，这里计算hash时也要看顺序
     function _hashPair(bytes32 a, bytes32 b) private pure returns (bytes32) {
         return a < b ? _efficientHash(a, b) : _efficientHash(b, a);
     }
 
+    // 相当于 keccak256(abi.encodePacked(a, b))
     function _efficientHash(bytes32 a, bytes32 b) private pure returns (bytes32 value) {
         /// @solidity memory-safe-assembly
         assembly {
