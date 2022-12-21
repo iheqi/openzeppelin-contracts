@@ -6,6 +6,9 @@ pragma solidity ^0.8.1;
 /**
  * @dev Collection of functions related to the address type
  */
+
+
+// Address 类型的相关函数功能扩展
 library Address {
     /**
      * @dev Returns true if `account` is a contract.
@@ -33,6 +36,15 @@ library Address {
      * constructor.
      * ====
      */
+
+    // 不能作为准确判断
+    // 其中，isContract 对于以下情形的地址将返回 false：
+
+    // - EOA
+    // - a contract in construction (一个合约在constructor调用，此时也是返回 false)
+    // - an address where a contract will be created (已经创建得到了address，但还没部署bytecode的状态，上面那个应该也属于这种)
+    // 已被销毁的合约地址
+
     function isContract(address account) internal view returns (bool) {
         // This method relies on extcodesize/address.code.length, which returns 0
         // for contracts in construction, since the code is only stored at the end
@@ -57,6 +69,11 @@ library Address {
      * {ReentrancyGuard} or the
      * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
      */
+
+    // Solidity transfer 的替代：将amount wei 发送到 recipient，没有gas限制。
+    // EIP1884增加了某些操作码的 gas 成本，可能使transfer超过 2300 gas 限制，sendValue删除此限制。
+    // (你都使用 call 了当然不受gas限制啊，不如说是对 call 的简单封装)
+
     function sendValue(address payable recipient, uint256 amount) internal {
         require(address(this).balance >= amount, "Address: insufficient balance");
 
@@ -157,6 +174,10 @@ library Address {
         bytes memory data,
         string memory errorMessage
     ) internal view returns (bytes memory) {
+        // staticcall 文档的解释： 
+        // https://learnblockchain.cn/docs/solidity/units-and-global-variables.html?highlight=staticcall
+        // https://learnblockchain.cn/docs/solidity/050-breaking-changes.html?highlight=staticcall
+
         (bool success, bytes memory returndata) = target.staticcall(data);
         return verifyCallResultFromTarget(target, success, returndata, errorMessage);
     }
