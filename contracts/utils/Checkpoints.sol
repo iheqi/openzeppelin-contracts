@@ -16,6 +16,10 @@ import "./math/SafeCast.sol";
  *
  * _Available since v4.5._
  */
+
+// Checkpoints 库定义了 History数据结构，用于检查 value值在不同时间点的变化，然后通过区块号blockNumber查找过去的值
+// 例子：contracts/governance/utils/Votes.sol
+
 library Checkpoints {
     struct History {
         Checkpoint[] _checkpoints;
@@ -31,12 +35,24 @@ library Checkpoints {
      * before it is returned, or zero otherwise. Because the number returned corresponds to that at the end of the
      * block, the requested block number must be in the past, excluding the current block.
      */
+
+    // 查询并返回 key 为 blockNumber 的Checkpoint结构体的value
+    // 如果未查到blockNumber对应的Checkpoint，则返回它之前最近的Checkpoint，否则为零
+
+
     function getAtBlock(History storage self, uint256 blockNumber) internal view returns (uint256) {
         require(blockNumber < block.number, "Checkpoints: block not yet mined");
         uint32 key = SafeCast.toUint32(blockNumber);
 
         uint256 len = self._checkpoints.length;
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, len);
+
+        // 注意：_upperBinaryLookup 很坑
+        // 如在 [0, 1, 2, 3, 4] 中找2，将返回 pos 3，则 pos - 1 对应的元素值为 2
+        // 如在 [0, 1, 3, 4] 中找2，将返回 pos 2，则 pos - 1 对应的元素值为 1（返回它之前最近的Checkpoint） // 这个逻辑可以完全不要啊，完全不符合 getAtBlock 含义
+        // pos为0，则 pos - 1 = -1，则没找到
+
+        // 注意传入的是len，而不是 len - 1
+        uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, len); 
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
     }
 
@@ -74,6 +90,8 @@ library Checkpoints {
      *
      * Returns previous value and new value.
      */
+
+    // 将一个值推送到 History 上，以便将其存储为当前块的检查点。返回以前的值和新值。 
     function push(History storage self, uint256 value) internal returns (uint256, uint256) {
         return _insert(self._checkpoints, SafeCast.toUint32(block.number), SafeCast.toUint224(value));
     }
@@ -95,6 +113,7 @@ library Checkpoints {
     /**
      * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
      */
+    // 返回最新一个元素的value，若数组为空则返回 0 
     function latest(History storage self) internal view returns (uint224) {
         uint256 pos = self._checkpoints.length;
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
@@ -104,6 +123,7 @@ library Checkpoints {
      * @dev Returns whether there is a checkpoint in the structure (i.e. it is not empty), and if so the key and value
      * in the most recent checkpoint.
      */
+    // 返回最新一个元素，若数组为空则 exists 为 false
     function latestCheckpoint(History storage self)
         internal
         view
@@ -133,21 +153,28 @@ library Checkpoints {
      * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
      * or by updating the last one.
      */
+
+    // _checkpoints 插入数据
+    // 感觉直接push就好了啊，为什么还要有更新逻辑
+    
     function _insert(
         Checkpoint[] storage self,
-        uint32 key,
+        uint32 key,      // 以 blockNumer 为key
         uint224 value
     ) private returns (uint224, uint224) {
         uint256 pos = self.length;
 
-        if (pos > 0) {
+        if (pos > 0) { // 如果元素数量大于 0
             // Copying to memory is important here.
+            // 取最后一个元素，注意这里的存储类型的 memory，意味着是 copy 一份
             Checkpoint memory last = _unsafeAccess(self, pos - 1);
 
             // Checkpoint keys must be non-decreasing.
             require(last._blockNumber <= key, "Checkpoint: decreasing keys");
 
             // Update or push new checkpoint
+            // 更新最后一个元素 或者 是push新元素
+
             if (last._blockNumber == key) {
                 _unsafeAccess(self, pos - 1)._value = value;
             } else {
@@ -166,6 +193,9 @@ library Checkpoints {
      *
      * WARNING: `high` should not be greater than the array's length.
      */
+
+    // 如在 [0, 1, 2, 3, 4] 中找2，将返回index 3
+    // 如在 [0, 1, 3, 4] 中找2，将返回index 2
     function _upperBinaryLookup(
         Checkpoint[] storage self,
         uint32 key,
@@ -173,7 +203,7 @@ library Checkpoints {
         uint256 high
     ) private view returns (uint256) {
         while (low < high) {
-            uint256 mid = Math.average(low, high);
+            uint256 mid = Math.average(low, high); // 向下取整的平均数
             if (_unsafeAccess(self, mid)._blockNumber > key) {
                 high = mid;
             } else {
@@ -189,6 +219,11 @@ library Checkpoints {
      *
      * WARNING: `high` should not be greater than the array's length.
      */
+
+    // 返回大于或等于 key 的最旧 Checkpoint 的值
+    // 如在 [0, 1, 2, 3, 4] 中找2，将返回index 2
+    // 如在 [0, 1, 3, 4] 中找2，将返回index 2
+
     function _lowerBinaryLookup(
         Checkpoint[] storage self,
         uint32 key,
@@ -209,6 +244,7 @@ library Checkpoints {
     /**
      * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
      */
+    // 访问数组的元素，不检查边界。假设pos在范围内。
     function _unsafeAccess(Checkpoint[] storage self, uint256 pos) private pure returns (Checkpoint storage result) {
         assembly {
             mstore(0, self.slot)
@@ -216,6 +252,7 @@ library Checkpoints {
         }
     }
 
+    // 跟 struct History 有啥区别？这几个 struct 都差不多啊
     struct Trace224 {
         Checkpoint224[] _checkpoints;
     }
@@ -306,6 +343,7 @@ library Checkpoints {
 
         if (pos > 0) {
             // Copying to memory is important here.
+            // 取最后一个元素，注意这里的存储类型的 memory，意味着是 copy 一份
             Checkpoint224 memory last = _unsafeAccess(self, pos - 1);
 
             // Checkpoint keys must be non-decreasing.
