@@ -12,6 +12,10 @@ pragma solidity ^0.8.0;
  * See the https://eips.ethereum.org/EIPS/eip-1014#motivation[EIP] for more
  * information.
  */
+
+// Create2 原来源于EIP-1014提案： https://eips.ethereum.org/EIPS/eip-1014
+// Smart Contract Programmer/58 Create2.sol
+
 library Create2 {
     /**
      * @dev Deploys a contract using `CREATE2`. The address where the contract
