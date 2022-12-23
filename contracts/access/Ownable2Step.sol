@@ -16,6 +16,9 @@ import "./Ownable.sol";
  * This module is used through inheritance. It will make available all functions
  * from parent (Ownable).
  */
+
+// Ownable2Step 继承和扩展 Ownable，多了一个 _pendingOwner 的概念
+
 abstract contract Ownable2Step is Ownable {
     address private _pendingOwner;
 
@@ -32,6 +35,8 @@ abstract contract Ownable2Step is Ownable {
      * @dev Starts the ownership transfer of the contract to a new account. Replaces the pending transfer if there is one.
      * Can only be called by the current owner.
      */
+
+    // 设置候选Owner，只能由当前Owner指定
     function transferOwnership(address newOwner) public virtual override onlyOwner {
         _pendingOwner = newOwner;
         emit OwnershipTransferStarted(owner(), newOwner);
@@ -49,6 +54,8 @@ abstract contract Ownable2Step is Ownable {
     /**
      * @dev The new owner accepts the ownership transfer.
      */
+
+    // 新所有者接受所有权的转让。 
     function acceptOwnership() external {
         address sender = _msgSender();
         require(pendingOwner() == sender, "Ownable2Step: caller is not the new owner");
