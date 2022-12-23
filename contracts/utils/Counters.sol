@@ -11,6 +11,10 @@ pragma solidity ^0.8.0;
  *
  * Include with `using Counters for Counters.Counter;`
  */
+
+// 提供只能递增、递减或重置的计数器。这可用于跟踪映射中元素的数量、发布 ERC721 id 或计算请求 id。
+// 应用例子：contracts/token/ERC20/extensions/ERC20Permit.sol 中的 nonce
+
 library Counters {
     struct Counter {
         // This variable should never be directly accessed by users of the library: interactions must be restricted to
