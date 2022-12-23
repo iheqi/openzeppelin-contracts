@@ -29,6 +29,9 @@ pragma solidity ^0.8.0;
  *
  * _Available since v4.1 for `address`, `bool`, `bytes32`, and `uint256`._
  */
+
+// 读写存储插槽的库 
+// 先学好内联汇编吧。。。：https://learnblockchain.cn/article/675
 library StorageSlot {
     struct AddressSlot {
         address value;
@@ -49,6 +52,7 @@ library StorageSlot {
     /**
      * @dev Returns an `AddressSlot` with member `value` located at `slot`.
      */
+    // 返回一个 value 为对应 slot 值的 AddressSlot
     function getAddressSlot(bytes32 slot) internal pure returns (AddressSlot storage r) {
         /// @solidity memory-safe-assembly
         assembly {
@@ -59,6 +63,9 @@ library StorageSlot {
     /**
      * @dev Returns an `BooleanSlot` with member `value` located at `slot`.
      */
+
+    // 返回一个 value 为对应 slot 值的 BooleanSlot
+
     function getBooleanSlot(bytes32 slot) internal pure returns (BooleanSlot storage r) {
         /// @solidity memory-safe-assembly
         assembly {
