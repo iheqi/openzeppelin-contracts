@@ -142,6 +142,8 @@ library Address {
      *
      * _Available since v3.1._
      */
+
+    // 就是调用 call 然后对返回结果判断是否成功 
     function functionCallWithValue(
         address target,
         bytes memory data,
@@ -223,6 +225,8 @@ library Address {
             if (returndata.length == 0) {
                 // only check isContract if the call was successful and the return data is empty
                 // otherwise we already know that it was a contract
+
+                // 没明白诶，如果 target 不是合约，还会 success 吗
                 require(isContract(target), "Address: call to non-contract");
             }
             return returndata;
