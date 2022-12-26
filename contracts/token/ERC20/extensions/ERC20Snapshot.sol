@@ -39,6 +39,8 @@ import "../../../utils/Counters.sol";
  * transfers will have normal cost until the next snapshot, and so on.
  */
 
+// 该合约使用快照机制扩展了 ERC20 代币。创建快照时，会记录当时的余额和总供应量以供以后查询。 
+
 abstract contract ERC20Snapshot is ERC20 {
     // Inspired by Jordi Baylina's MiniMeToken to record historical balances:
     // https://github.com/Giveth/minime/blob/ea04d950eea153a04c51fa510b068b9dded390cb/contracts/MiniMeToken.sol
@@ -53,10 +55,15 @@ abstract contract ERC20Snapshot is ERC20 {
         uint256[] values;
     }
 
+    // 账户映射的快照数组
     mapping(address => Snapshots) private _accountBalanceSnapshots;
+    
+    // 总供应快照
     Snapshots private _totalSupplySnapshots;
 
     // Snapshot ids increase monotonically, with the first value being 1. An id of 0 is invalid.
+    
+    // 快照ID, 使用 Counter 数据结构
     Counters.Counter private _currentSnapshotId;
 
     /**
@@ -85,6 +92,11 @@ abstract contract ERC20Snapshot is ERC20 {
      * We haven't measured the actual numbers; if this is something you're interested in please reach out to us.
      * ====
      */
+
+    // 创建一个新快照并返回其快照 ID。
+    // (他妈的这里只是单纯的创建ID，具体打快照是在 _beforeTokenTransfer。mint、burn、transfer操作都会被打上改ID
+    // 这快照ID看起来就像代表着一段时期，而且还要别人去触发)
+
     function _snapshot() internal virtual returns (uint256) {
         _currentSnapshotId.increment();
 
@@ -96,6 +108,8 @@ abstract contract ERC20Snapshot is ERC20 {
     /**
      * @dev Get the current snapshotId
      */
+
+    // 获取当前快照Id 
     function _getCurrentSnapshotId() internal view virtual returns (uint256) {
         return _currentSnapshotId.current();
     }
@@ -103,6 +117,8 @@ abstract contract ERC20Snapshot is ERC20 {
     /**
      * @dev Retrieves the balance of `account` at the time `snapshotId` was created.
      */
+
+    // 查询创建 snapshotId 时的 account 的余额。 
     function balanceOfAt(address account, uint256 snapshotId) public view virtual returns (uint256) {
         (bool snapshotted, uint256 value) = _valueAt(snapshotId, _accountBalanceSnapshots[account]);
 
@@ -112,6 +128,9 @@ abstract contract ERC20Snapshot is ERC20 {
     /**
      * @dev Retrieves the total supply at the time `snapshotId` was created.
      */
+
+    // 查询创建 snapshotId 时的总供应量
+
     function totalSupplyAt(uint256 snapshotId) public view virtual returns (uint256) {
         (bool snapshotted, uint256 value) = _valueAt(snapshotId, _totalSupplySnapshots);
 
@@ -120,6 +139,8 @@ abstract contract ERC20Snapshot is ERC20 {
 
     // Update balance and/or total supply snapshots before the values are modified. This is implemented
     // in the _beforeTokenTransfer hook, which is executed for _mint, _burn, and _transfer operations.
+
+    // 快照的更新在 mint、burn、transfer 前触发
     function _beforeTokenTransfer(
         address from,
         address to,
@@ -142,6 +163,7 @@ abstract contract ERC20Snapshot is ERC20 {
         }
     }
 
+    // 查询 snapshots数组中 snapshotId 对应的value
     function _valueAt(uint256 snapshotId, Snapshots storage snapshots) private view returns (bool, uint256) {
         require(snapshotId > 0, "ERC20Snapshot: id is 0");
         require(snapshotId <= _getCurrentSnapshotId(), "ERC20Snapshot: nonexistent id");
@@ -169,17 +191,22 @@ abstract contract ERC20Snapshot is ERC20 {
         }
     }
 
+    // 记录账户的快照
     function _updateAccountSnapshot(address account) private {
         _updateSnapshot(_accountBalanceSnapshots[account], balanceOf(account));
     }
 
+
+    // 记录总供应的快照
     function _updateTotalSupplySnapshot() private {
         _updateSnapshot(_totalSupplySnapshots, totalSupply());
     }
 
+    // 记录快照
     function _updateSnapshot(Snapshots storage snapshots, uint256 currentValue) private {
         uint256 currentId = _getCurrentSnapshotId();
-        if (_lastSnapshotId(snapshots.ids) < currentId) {
+
+        if (_lastSnapshotId(snapshots.ids) < currentId) { // 只记录一次，下次mint、burn时不会更新了
             snapshots.ids.push(currentId);
             snapshots.values.push(currentValue);
         }
