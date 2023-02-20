@@ -23,7 +23,8 @@ import "../ERC1967/ERC1967Upgrade.sol";
 // https://eips.ethereum.org/EIPS/eip-1822
 // https://docs.openzeppelin.com/contracts/4.x/api/proxy#UUPSUpgradeable
 // 通用可升级代理规范（UUPS，universal upgradeable proxy standard）
-// 就把升级函数也搬到逻辑合约里（这里的实现又让我搞不懂了，看 WTFSolidity/49.UUPS.sol 还比较好理解）
+// 就把升级函数也搬到逻辑合约里（看 WTFSolidity/49.UUPS.sol 还比较好理解）
+// 这个UUPSUpgradeable合约是给逻辑合约去继承的
 
 abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment

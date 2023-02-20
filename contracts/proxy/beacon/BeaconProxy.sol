@@ -25,6 +25,7 @@ import "../ERC1967/ERC1967Upgrade.sol";
 // 信标合约将所有的具有相同逻辑合约的代理合约的_implementation 只存一份在信标合约中，
 // 所有的代理合约通过和信标合约接口调用，获取_implementation
 // (但是他妈的什么场景会一个逻辑合约有多个代理合约？这玩意感觉扯淡，你写个mutilcall不好吗)
+// https://learnblockchain.cn/article/4936
 
 contract BeaconProxy is Proxy, ERC1967Upgrade {
     /**
