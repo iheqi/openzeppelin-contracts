@@ -29,6 +29,10 @@ import "../../../utils/structs/BitMaps.sol";
  *
  * _Available since v4.8._
  */
+
+// https://docs.openzeppelin.com/contracts/4.x/api/token/erc721#ERC721Consecutive 
+// 实现怎么跟理解的规范不太一样
+
 abstract contract ERC721Consecutive is IERC2309, ERC721 {
     using BitMaps for BitMaps.BitMap;
     using Checkpoints for Checkpoints.Trace160;
@@ -81,6 +85,9 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      *
      * Emits a {IERC2309-ConsecutiveTransfer} event.
      */
+
+    
+    // 连续mint，怎么限制只在constructor
     function _mintConsecutive(address to, uint96 batchSize) internal virtual returns (uint96) {
         uint96 first = _totalConsecutiveSupply();
 
