@@ -30,8 +30,8 @@ import "../../../utils/math/Math.sol";
 abstract contract ERC4626 is ERC20, IERC4626 {
     using Math for uint256;
 
-    IERC20 private immutable _asset;
-    uint8 private immutable _decimals;
+    IERC20 private immutable _asset;   // 金库的底层资产代币 
+    uint8 private immutable _decimals; // 小数点数
 
     /**
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC20 or ERC777).
@@ -45,6 +45,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     /**
      * @dev Attempts to fetch the asset decimals. A return value of false indicates that the attempt failed in some way.
      */
+    // 获取 decimals
     function _tryGetAssetDecimals(IERC20 asset_) private returns (bool, uint8) {
         (bool success, bytes memory encodedDecimals) = address(asset_).call(
             abi.encodeWithSelector(IERC20Metadata.decimals.selector)
@@ -74,6 +75,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /** @dev See {IERC4626-totalAssets}. */
+    // 金库中底层代币余额
     function totalAssets() public view virtual override returns (uint256) {
         return _asset.balanceOf(address(this));
     }
@@ -89,6 +91,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /** @dev See {IERC4626-maxDeposit}. */
+    // 最大存 type(uint256).max
     function maxDeposit(address) public view virtual override returns (uint256) {
         return _isVaultHealthy() ? type(uint256).max : 0;
     }
@@ -99,21 +102,25 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /** @dev See {IERC4626-maxWithdraw}. */
+    // 返回某个用户地址可以提取的最大基础资产额度。
     function maxWithdraw(address owner) public view virtual override returns (uint256) {
         return _convertToAssets(balanceOf(owner), Math.Rounding.Down);
     }
 
     /** @dev See {IERC4626-maxRedeem}. */
+    // 返回某个用户地址的金库份度。（金库代币LP数）
     function maxRedeem(address owner) public view virtual override returns (uint256) {
         return balanceOf(owner);
     }
 
     /** @dev See {IERC4626-previewDeposit}. */
+    // 计算可兑换到的份额。和 convertToShares 一样的。
     function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
         return _convertToShares(assets, Math.Rounding.Down);
     }
 
     /** @dev See {IERC4626-previewMint}. */
+    // 计算可赎回到的底层资产数
     function previewMint(uint256 shares) public view virtual override returns (uint256) {
         return _convertToAssets(shares, Math.Rounding.Up);
     }
@@ -129,10 +136,11 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /** @dev See {IERC4626-deposit}. */
+    // 存款函数: 用户向金库存入 assets 单位的基础资产，然后合约铸造 shares 单位的金库额度给 receiver 地址
     function deposit(uint256 assets, address receiver) public virtual override returns (uint256) {
         require(assets <= maxDeposit(receiver), "ERC4626: deposit more than max");
 
-        uint256 shares = previewDeposit(assets);
+        uint256 shares = previewDeposit(assets); // 计算将获得的金库份额
         _deposit(_msgSender(), receiver, assets, shares);
 
         return shares;
@@ -143,6 +151,8 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * As opposed to {deposit}, minting is allowed even if the vault is in a state where the price of a share is zero.
      * In this case, the shares will be minted without requiring any assets to be deposited.
      */
+    // 也是存款函数: 不过传的是 shares 数量，再计算 asset的数量。
+
     function mint(uint256 shares, address receiver) public virtual override returns (uint256) {
         require(shares <= maxMint(receiver), "ERC4626: mint more than max");
 
@@ -153,6 +163,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /** @dev See {IERC4626-withdraw}. */
+    // 提款函数，owner 地址销毁 share 单位的金库额度，然后合约将相应数量的基础资产发送给 receiver 地址。
     function withdraw(
         uint256 assets,
         address receiver,
@@ -167,6 +178,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /** @dev See {IERC4626-redeem}. */
+    // 赎回函数（也是提款函数），owner 地址销毁 shares 数量的金库额度，然后合约将相应单位的基础资产发给 receiver 地址
     function redeem(
         uint256 shares,
         address receiver,
@@ -186,6 +198,9 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * Will revert if assets > 0, totalSupply > 0 and totalAssets = 0. That corresponds to a case where any asset
      * would represent an infinite amount of shares.
      */
+    // 计算可兑换到的份额
+    // 如果 supply 为 0，那么 1:1 铸造金库份额
+    // 如果 supply 不为0，那么按比例铸造 （可能不是1:1了，因为除了存储，还可能有直接捐赠）
     function _convertToShares(uint256 assets, Math.Rounding rounding) internal view virtual returns (uint256) {
         uint256 supply = totalSupply();
         return
@@ -209,6 +224,9 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     /**
      * @dev Internal conversion function (from shares to assets) with support for rounding direction.
      */
+    // 计算可赎回到的底层资产数
+    // 如果 supply 为 0，那么 1:1 赎回基础资产
+    // 如果 supply 不为0，那么按比例赎回
     function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view virtual returns (uint256) {
         uint256 supply = totalSupply();
         return
@@ -243,6 +261,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         // Conclusion: we need to do the transfer before we mint so that any reentrancy would happen before the
         // assets are transferred and before the shares are minted, which is a valid state.
         // slither-disable-next-line reentrancy-no-eth
+        // 将 asset 转账到金库后，铸造份额
         SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
         _mint(receiver, shares);
 
@@ -269,6 +288,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         //
         // Conclusion: we need to do the transfer after the burn so that any reentrancy would happen after the
         // shares are burned and after the assets are transferred, which is a valid state.
+        // 销毁份额，获得 asset
         _burn(owner, shares);
         SafeERC20.safeTransfer(_asset, receiver, assets);
 
